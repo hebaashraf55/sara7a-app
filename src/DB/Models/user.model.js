@@ -14,14 +14,14 @@ const userSchema = new Schema({
         required : true,
         trim : true,
         minLength : [ 3, 'first name must be at least 3 characters long'],
-        mixLength : [ 20, 'first name must be at most 15 characters long']
+        maxLength : [ 20, 'first name must be at most 15 characters long']
     },
     lastName: {
         type: String,
         required : true,
         trim : true,
         minLength : [ 3, 'last name must be at least 3 characters long'],
-        mixLength : [ 20, 'last name must be at most 15 characters long']
+        maxLength : [ 20, 'last name must be at most 15 characters long']
     },
     email: {
         type: String,
@@ -45,7 +45,7 @@ const userSchema = new Schema({
        default : genderEnum.male
     },
     phone: String,
-    comfirmEmail: Date,
+    comfirmEmail: Date ,
     photo : String,
     provider : {
         type : String,
@@ -59,9 +59,6 @@ const userSchema = new Schema({
 },
  {timestamps: true}
 );
-
-
-
 
 export const UserModel = mongoose.models.User || model('User', userSchema);
 

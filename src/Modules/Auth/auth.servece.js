@@ -82,7 +82,7 @@ async function verifyGoogleAcount ({idToken}) {
     const client = new OAuth2Client();
     const ticket = await client.verifyIdToken({
         idToken,
-        audience: process.env.CLINT_ID,  
+        audience: process.env.CLIENT_ID,  
     });
     const payload = ticket.getPayload();
     return payload;
@@ -136,7 +136,7 @@ export const logInWithGmail = async (req, res, next) => {
         lastName : family_name,
         photo : picture,
         provider : providers.google,
-        confirm_email : Date.now()
+        confirmEmail : new Date.now()
     }]
    })
         const accessToken = signToken({
