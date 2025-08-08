@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const connectDB = async () => {
     try {
-        await mongoose.connect('mongodb://127.0.0.1:27017/sara7aApp', {
+        await mongoose.connect( process.env.MONGO_URL, {
             serverSelectionTimeoutMS: 5000
         });
         console.log('DB connected successfully');

@@ -6,5 +6,7 @@ const router = Router();
 router.post('/signup', authRouter.signUp)
 router.post('/login', authRouter.logIn)
 
+router.post('/social-login', authRouter.logInWithGmail)
+
 
 export default router;

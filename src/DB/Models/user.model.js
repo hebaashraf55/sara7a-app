@@ -1,10 +1,13 @@
 import mongoose, { Schema , model } from "mongoose";
 
 
-export const genderEnum = 
-    {male : 'Male',
+export const genderEnum = {
+    male : 'Male',
     female : 'Female'}
-
+export const providers = {
+    system : 'SYSTEM',
+    google : "GOOGLE"
+}
 const userSchema = new Schema({
     firstName : {
         type: String,
@@ -29,7 +32,9 @@ const userSchema = new Schema({
     },
     password : {
         type : String,
-        required : true,
+        required : function () {
+            return this.provider === providers.system ? true : false;
+        },
     },
     gender : {
         type : String,
@@ -40,8 +45,16 @@ const userSchema = new Schema({
        default : genderEnum.male
     },
     phone: String,
-    comfirmEmail: Boolean || Date,
-    
+    comfirmEmail: Date,
+    photo : String,
+    provider : {
+        type : String,
+        enum : {
+            values : Object.values(providers),
+            message : " Provider must be either system or google "
+        },
+        default : providers.system
+    }
 
 },
  {timestamps: true}

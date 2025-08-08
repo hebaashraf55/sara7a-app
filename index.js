@@ -1,7 +1,9 @@
 import express from 'express';
-import bootstrap from './src/app.contriller.js'
+import bootstrap from './src/app.contriller.js';
+
+
 const app = express()
-const port = 3000
+const port = process.env.PORT ;
 
 await bootstrap(app, express);
 
