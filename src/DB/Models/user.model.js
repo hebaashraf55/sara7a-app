@@ -4,10 +4,16 @@ import mongoose, { Schema , model } from "mongoose";
 export const genderEnum = {
     male : 'Male',
     female : 'Female'}
+    
 export const providers = {
     system : 'SYSTEM',
     google : "GOOGLE"
 }
+export const roles = {
+    user : 'USER',
+    admin : 'ADMIN'
+}
+
 const userSchema = new Schema({
     firstName : {
         type: String,
@@ -54,6 +60,14 @@ const userSchema = new Schema({
             message : " Provider must be either system or google "
         },
         default : providers.system
+    },
+    role : {
+        type : String,
+        enum : {
+            values : Object.values(roles),
+            message : " Rols must be either user or admin "
+        },
+        default : roles.user
     }
 
 },

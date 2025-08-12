@@ -1,17 +1,17 @@
-import { UserModel } from '../../DB/Models/user.model.js';
-// import { asyncHandler } from '../../Utiles/asyncHandler.js'
+import { UserModel , providers , roles } from '../../DB/Models/user.model.js';
+// import { asyncHandler } from '../../Utiles/asyncHandler.js';
 import { successResponse } from '../../Utiles/successRespons.utils.js';
 import  * as dbService from '../../DB/dbService.js';
 import { compare, hash } from '../../Utiles/hash.utils.js';
 import { encrypt } from '../../Utiles/encryption.utils.js';
 import { signToken } from '../../Utiles/token.utils.js';
-import {OAuth2Client} from 'google-auth-library';
+import { OAuth2Client } from 'google-auth-library';
+
 
 // sign up
 export const signUp = async (req, res, next) => {
-        const { firstName, lastName , email, password, gender , phone } = req.body
+        const { firstName, lastName , email, password, gender , phone , role } = req.body
         // check if user already exists 
-        
         const user = await dbService.findOne({ model : UserModel , filter : {email}})
         if (user) return next(new Error("User already exists"), { cause: 409 })
             // hash password 
@@ -27,10 +27,10 @@ export const signUp = async (req, res, next) => {
                 email,
                 password : hashedPassword,
                 gender,
-                phone : encryptedPhone
+                phone : encryptedPhone,
+                role
             }]
         })
-
         return successResponse({ 
             res, statusCode: 201, 
             message: "User created successfully", 
@@ -46,6 +46,9 @@ export const logIn = async (req, res, next) => {
             model : UserModel , 
             filter : { email } 
         })
+        if(!user) {
+            return next ( new Error("User not found"), { cause: 404 })
+        }
         // compare hashed password 
         const isMatch = await compare({ plainText : password, hash : user.password })
         if ( !isMatch) {
@@ -53,18 +56,26 @@ export const logIn = async (req, res, next) => {
         }
         const accessToken = signToken({
             payload : { _id : user._id },
+            signature : 
+            user.role === roles.admin 
+            ? process.env.ACCESS_ADMIN_SIGNATUR_TOKEN 
+            : process.env.ACCESS_USER_SIGNATUR_TOKEN,
             options : {
                 issuer : "sara7aApp",
-                signature : "secret",
-                expiresIn : "1d"
+                expiresIn : "1d",
+                subject : "Authentication"
             }
         })
         const refreshToken = signToken({
             payload : { _id : user._id },
+            signature :
+            user.role === roles.admin 
+            ? process.env.REFRESH_ADMIN_SIGNATUR_TOKEN
+            : process.env.REFRESH_USER_SIGNATUR_TOKEN, 
             options : {
                 issuer : "sara7aApp",
-                signature : "secret",
-                expiresIn : "7d"
+                expiresIn : "7d",
+                subject : "Authentication"
             }
         })
         // if ( !user) 
@@ -91,8 +102,9 @@ async function verifyGoogleAcount ({idToken}) {
 
 // socil login with Gemail
 export const logInWithGmail = async (req, res, next) => {
-    const {idToken} = req.body;
-    const { email , email_verified, picture, given_name, family_name} = await verifyGoogleAcount({idToken})
+
+    const { idToken } = req.body;
+    const { email , email_verified , picture , given_name , family_name } = await verifyGoogleAcount({idToken})
 
     if(!email_verified) {
         return next(new Error("Email not verified"), { cause: 401 })
@@ -136,7 +148,7 @@ export const logInWithGmail = async (req, res, next) => {
         lastName : family_name,
         photo : picture,
         provider : providers.google,
-        confirmEmail : new Date.now()
+        confirmEmail : Date.now()
     }]
    })
         const accessToken = signToken({

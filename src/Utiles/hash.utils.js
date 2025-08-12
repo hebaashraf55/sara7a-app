@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
 
-export const hash = async ({ plainText = " " , saltRound = 12}) => {
+export const hash = async ({ plainText = " " , saltRound = Number (process.env.SALT)}) => {
     return await bcrypt.hash(plainText, saltRound)
 }
 

@@ -1,22 +1,47 @@
 import { UserModel } from "../DB/Models/user.model.js";
 import * as dbService from "../DB/dbService.js";
-import { verifyToken } from "../Utiles/token.utils.js";
+import { verifyToken , getSignature , signatureEnum } from "../Utiles/token.utils.js";
 
 
+export const tokenTypeEnum = {
+    access : 'access',
+    refresh : 'refresh'
+}
 
-export const authentication = async ( req, res , next) => {
-    
-        const { authorization } = req.headers;
-    
-        const decoded = verifyToken({ token : authorization})
+const decodedToken = async ({ authorization , tokenType = tokenTypeEnum.access ,next }) => {
         
+        const [ bearer , token ] = authorization.split(" ") || [];
+
+        if(!bearer || !token)
+            return next(new Error ("Invalid Token") , { cause : 400 })
+        let signature = await getSignature({ 
+            signatureLevel : bearer 
+         })
+        const decoded = verifyToken({ 
+            token , 
+            signature : 
+            tokenType === tokenTypeEnum.access 
+            ? signature.accessSignature 
+            : signature.refreshSignature 
+        })
         const user = await dbService.findById( { 
             model : UserModel ,
             id : { _id : decoded._id }
         })
         if(!user) 
             return next(new Error ("User Not Found") , { cause : 404 })
+        return user
+}
 
-        req.user = user
-        return next()
+
+export const authentication = ({ tokenType = tokenTypeEnum.access}) => {
+
+    return async (req, res, next) => {
+        req.user = await decodedToken({
+            authorization : req.headers,
+            tokenType,
+            next
+        })
+    }
+
 }
