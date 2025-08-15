@@ -51,8 +51,9 @@ const userSchema = new Schema({
        default : genderEnum.male
     },
     phone: String,
-    comfirmEmail: Date ,
+    confirmEmail: Date ,
     photo : String,
+    confirmEmailOTP : String,
     provider : {
         type : String,
         enum : {

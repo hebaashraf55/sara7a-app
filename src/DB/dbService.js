@@ -25,3 +25,13 @@ export const create = async ({
 } = {}) => {
     return await model.create(data , options )
 }
+
+export const updateOne = async ({
+    model, 
+    filter = {}, 
+    data = {}, 
+    options = {
+        runValidators : true }
+} = {}) => {
+    return await model.updateOne(filter, data, options)
+}

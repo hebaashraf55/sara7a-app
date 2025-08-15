@@ -2,10 +2,13 @@ import { UserModel , providers , roles } from '../../DB/Models/user.model.js';
 // import { asyncHandler } from '../../Utiles/asyncHandler.js';
 import { successResponse } from '../../Utiles/successRespons.utils.js';
 import  * as dbService from '../../DB/dbService.js';
-import { compare, hash } from '../../Utiles/hash.utils.js';
-import { encrypt } from '../../Utiles/encryption.utils.js';
-import { signToken } from '../../Utiles/token.utils.js';
+import { compare, hash } from '../../Utiles/hashing/hash.utils.js';
+import { encrypt } from '../../Utiles/encription/encryption.utils.js';
+import { signToken } from '../../Utiles/token/token.utils.js';
 import { OAuth2Client } from 'google-auth-library';
+import { getSignature , signatureEnum  } from '../../Utiles/token/token.utils.js';
+import { emailEvent } from '../../Utiles/events/event.utiles.js';
+import { customAlphabet } from 'nanoid';
 
 
 // sign up
@@ -18,6 +21,14 @@ export const signUp = async (req, res, next) => {
         const hashedPassword = await hash({ plainText : password })
         // encrypt phone number
         const encryptedPhone = encrypt(phone)
+        // create otp 
+        const code = customAlphabet('1234567890gahskfhgal', 6)()
+        // otp save in database hashed 
+        const hashOTP = await hash({ plainText : code })
+
+        // send email
+         emailEvent.emit('confirmemail', { to : email , otp : code , firstName})
+
         // create new user
         const newUser = await dbService.create({
             model : UserModel,
@@ -28,7 +39,8 @@ export const signUp = async (req, res, next) => {
                 password : hashedPassword,
                 gender,
                 phone : encryptedPhone,
-                role
+                role,
+                confirmEmailOTP : hashOTP
             }]
         })
         return successResponse({ 
@@ -54,12 +66,12 @@ export const logIn = async (req, res, next) => {
         if ( !isMatch) {
             return next ( new Error("invalid credentials"), { cause: 401 })
         }
+        let signature = await getSignature({
+            signatureLevel : user.role != roles.user ? signatureEnum.admin : signatureEnum.user
+        })
         const accessToken = signToken({
             payload : { _id : user._id },
-            signature : 
-            user.role === roles.admin 
-            ? process.env.ACCESS_ADMIN_SIGNATUR_TOKEN 
-            : process.env.ACCESS_USER_SIGNATUR_TOKEN,
+            signature : signature.accessSignature,
             options : {
                 issuer : "sara7aApp",
                 expiresIn : "1d",
@@ -68,10 +80,7 @@ export const logIn = async (req, res, next) => {
         })
         const refreshToken = signToken({
             payload : { _id : user._id },
-            signature :
-            user.role === roles.admin 
-            ? process.env.REFRESH_ADMIN_SIGNATUR_TOKEN
-            : process.env.REFRESH_USER_SIGNATUR_TOKEN, 
+            signature : signature.refreshSignature,
             options : {
                 issuer : "sara7aApp",
                 expiresIn : "7d",
@@ -86,6 +95,41 @@ export const logIn = async (req, res, next) => {
             statusCode: 200, 
             message: "User logged in successfully", 
             data: { accessToken , refreshToken } })
+}
+// confirm email
+export const confirmEmail = async (req, res, next) => {
+    const { email , otp } = req.body
+    // find user
+    const user = await dbService.findOne({ 
+        model : UserModel , 
+        filter : { 
+            email , 
+            confirmEmail : { $exists : false }, 
+            confirmEmailOTP : { $exists : true } } 
+    })
+    if(!user) {
+        return next ( new Error("User not found or email already confirmed"), { cause: 404 })
+    }
+    if(!await compare({ plainText : otp, hash : user.confirmEmailOTP })) {
+        return next ( new Error("Invalid OTP"), { cause: 401 })
+    }
+    // update user
+    await dbService.updateOne({ 
+        model : UserModel , 
+        filter : { email },
+        data : { 
+            confirmEmail : Date.now(),
+            $unset : { confirmEmailOTP : true },
+            $inc : {__v : 1}
+         }
+    })
+    return successResponse({ 
+        res, 
+        statusCode: 200, 
+        message: "Email confirmed successfully",
+        data: user
+
+}) 
 }
 
 
@@ -172,4 +216,37 @@ export const logInWithGmail = async (req, res, next) => {
             statusCode: 201, 
             message: "User logged in successfully", 
             data: { accessToken , refreshToken } })
+}
+
+
+export const refreshToken = async ( req, res, next ) => {
+
+    const user = req.user;
+    let signature = await getSignature({ 
+        signatureLevel : user.role != roles.user ? signatureEnum.admin : signatureEnum.user 
+     })
+    const accessToken = signToken({
+        payload : { _id : user._id },
+        signature : signature.accessSignature,
+         options : {
+                issuer : "sara7aApp",
+                expiresIn : "1d",
+                subject : "Authentication"
+            }
+    })
+    const refresToken = signToken({
+        payload : { _id : user._id },
+        signature : signature.refreshSignature,
+        options : {
+                issuer : "sara7aApp",
+                expiresIn : "7d",
+                subject : "Authentication"
+            }
+    })
+    return  successResponse({ 
+        res, 
+        statusCode: 200, 
+        message: "New Credentials Generated successfully", 
+        data: { accessToken , refresToken } })
+
 }

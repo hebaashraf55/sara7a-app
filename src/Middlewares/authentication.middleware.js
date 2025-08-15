@@ -1,6 +1,6 @@
 import { UserModel } from "../DB/Models/user.model.js";
 import * as dbService from "../DB/dbService.js";
-import { verifyToken , getSignature , signatureEnum } from "../Utiles/token.utils.js";
+import { verifyToken , getSignature , signatureEnum } from "../Utiles/token/token.utils.js";
 
 
 export const tokenTypeEnum = {
@@ -38,10 +38,10 @@ export const authentication = ({ tokenType = tokenTypeEnum.access}) => {
 
     return async (req, res, next) => {
         req.user = await decodedToken({
-            authorization : req.headers,
+            authorization : req.headers.authorization,
             tokenType,
             next
         })
+        return next()
     }
-
 }
