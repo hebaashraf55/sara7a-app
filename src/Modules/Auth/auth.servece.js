@@ -66,6 +66,9 @@ export const logIn = async (req, res, next) => {
         if ( !isMatch) {
             return next ( new Error("invalid credentials"), { cause: 401 })
         }
+        if(!user.confirmEmail) {
+            return next ( new Error("Email not confirmed or user not found"), { cause: 401 })
+        }
         let signature = await getSignature({
             signatureLevel : user.role != roles.user ? signatureEnum.admin : signatureEnum.user
         })
@@ -96,6 +99,7 @@ export const logIn = async (req, res, next) => {
             message: "User logged in successfully", 
             data: { accessToken , refreshToken } })
 }
+
 // confirm email
 export const confirmEmail = async (req, res, next) => {
     const { email , otp } = req.body
@@ -113,6 +117,7 @@ export const confirmEmail = async (req, res, next) => {
     if(!await compare({ plainText : otp, hash : user.confirmEmailOTP })) {
         return next ( new Error("Invalid OTP"), { cause: 401 })
     }
+
     // update user
     await dbService.updateOne({ 
         model : UserModel , 
@@ -131,7 +136,6 @@ export const confirmEmail = async (req, res, next) => {
 
 }) 
 }
-
 
 async function verifyGoogleAcount ({idToken}) {
     const client = new OAuth2Client();

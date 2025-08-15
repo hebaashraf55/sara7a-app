@@ -11,7 +11,7 @@ router.get('/refresh-token', authentication({
     tokenType : tokenTypeEnum.refresh
 }) ,authRouter.refreshToken)
 
-router.patch('/confirmemail',authRouter.confirmEmail)
+router.patch('/confirm-email',authRouter.confirmEmail)
 
 
 export default router;
