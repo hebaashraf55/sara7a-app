@@ -3,10 +3,8 @@ import { successResponse } from "../../Utiles/successRespons.utils.js";
 
 
 export const profile = async (req, res, next) => {
-
     // user {} 
     req.user.phone = decrypt(req.user.phone)
-
     return successResponse({ 
         res, 
         statusCode: 200, 

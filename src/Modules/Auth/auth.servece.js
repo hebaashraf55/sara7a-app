@@ -11,9 +11,11 @@ import { emailEvent } from '../../Utiles/events/event.utiles.js';
 import { customAlphabet } from 'nanoid';
 
 
+
 // sign up
 export const signUp = async (req, res, next) => {
-        const { firstName, lastName , email, password, gender , phone , role } = req.body
+        const { firstName, lastName , email, password, confirmPassword ,phone,gender ,  role } = req.body
+
         // check if user already exists 
         const user = await dbService.findOne({ model : UserModel , filter : {email}})
         if (user) return next(new Error("User already exists"), { cause: 409 })
