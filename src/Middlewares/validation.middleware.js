@@ -1,3 +1,28 @@
+import joi from 'joi';
+
+
+export const generalFields = {
+    firstName : joi.string().min(3).max(20).messages({
+        "string.min" : "First name must be at least 3 characters long",
+        "string.max" : "First name must be at most 20 characters long",
+        "any.required" : "First name is Mandatory"
+    }),
+    lastName : joi.string().min(3).max(20).messages({
+        "string.min" : "Last name must be at least 3 characters long",
+        "string.max" : "Last name must be at most 20 characters long",
+        "any.required" : "Last name is Mandatory"}),
+    email : joi.string().email({ 
+        minDomainSegments: 2 , 
+        maxDomainSegments: 5 , 
+        tlds: { allow : ["com", "org", "net", "gov", "edu", "io" ]} }),
+    password : joi.string(),
+    confirmPassword : joi.ref('password'),
+    gender : joi.string().valid('Male', 'Female').default('Male'),
+    role : joi.string().valid('USER', 'ADMIN').default('USER'),
+    phone : joi.string()
+}
+
+
 
 
 export const validation = (schema) => {

@@ -1,23 +1,18 @@
 import joi from 'joi';
+import { generalFields } from '../../Middlewares/validation.middleware.js';
+
 
 export const signUpValidation = {
     body : joi.object({
-    firstName : joi.string().min(3).max(20).required().messages({
-        "string.min" : "First name must be at least 3 characters long",
-        "string.max" : "First name must be at most 20 characters long",
-        "any.required" : "First name is Mandatory"
-    }),
-    lastName : joi.string().min(3).max(20).required(),
-    email : joi.string().email({ 
-        minDomainSegments: 2 , 
-        maxDomainSegments: 5 , 
-        tlds: { allow : ["com", "org", "net", "gov", "edu", "io" ]} })
-        .required(),
-    password : joi.string().required(),
-    confirmPassword : joi.ref('password'),
-    gender : joi.string().valid('Male', 'Female').default('Male'),
-    role : joi.string().valid('USER', 'ADMIN').default('USER'),
-    phone : joi.string()
+        firstName : generalFields.firstName.required(),
+        lastName : generalFields.lastName.required(),
+        email : generalFields.email.required(),
+        password : generalFields.password.required(),
+        confirmPassword : generalFields.confirmPassword,
+        gender : generalFields.gender,
+        phone : generalFields.phone,
+        role : generalFields.role
+
 }).required()
 
 }
@@ -25,12 +20,8 @@ export const signUpValidation = {
 
 export const logInValidation = {
     body: joi.object({
-    email : joi.string().email({ 
-        minDomainSegments: 2 , 
-        maxDomainSegments: 5 , 
-        tlds: { allow : ["com", "org", "net", "gov", "edu", "io" ]} })
-        .required(),
-    password : joi.string().required(),
+        email : generalFields.email.required(),
+        password : generalFields.password.required()
 
 }).required(),
 }
