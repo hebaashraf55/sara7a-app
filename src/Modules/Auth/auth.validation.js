@@ -25,3 +25,23 @@ export const logInValidation = {
 
 }).required(),
 }
+
+export const socialLoginValidation = {
+    body : joi.object({
+        idToken : joi.string().required(
+            {
+                messages : {
+                    "any.required" : "idToken is required"
+                }
+            }
+        )
+    }).required()
+}
+
+export const confirmEmailValidation = {
+    body : joi.object({
+        email : generalFields.email.required(),
+        otp : generalFields.otp.required()
+
+    }).required()
+}

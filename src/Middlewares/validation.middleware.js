@@ -15,11 +15,15 @@ export const generalFields = {
         minDomainSegments: 2 , 
         maxDomainSegments: 5 , 
         tlds: { allow : ["com", "org", "net", "gov", "edu", "io" ]} }),
-    password : joi.string(),
+    password : joi.string().pattern(/^[A-Za-z\d@#$!?&*]{8,20}$/),
     confirmPassword : joi.ref('password'),
     gender : joi.string().valid('Male', 'Female').default('Male'),
     role : joi.string().valid('USER', 'ADMIN').default('USER'),
-    phone : joi.string()
+    phone : joi.string().pattern(/^(002|\+2)?01[0125]\d{8}$/),
+    id: joi.string().custom((value, helpers) => {
+        Types.ObjectId.isValid(value) || helpers.message("id is not valid")
+    }),
+    otp : joi.string().pattern(/^\d{6}$/)
 }
 
 

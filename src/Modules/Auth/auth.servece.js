@@ -24,7 +24,7 @@ export const signUp = async (req, res, next) => {
         // encrypt phone number
         const encryptedPhone = encrypt(phone)
         // create otp 
-        const code = customAlphabet('1234567890gahskfhgal', 6)()
+        const code = customAlphabet('0123456789', 6)()
         // otp save in database hashed 
         const hashOTP = await hash({ plainText : code })
 

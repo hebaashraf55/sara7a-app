@@ -5,6 +5,9 @@ import {
     tokenTypeEnum , 
     authorization } from '../../Middlewares/authentication.middleware.js';
 import { endPoints } from './user.authorization.js';
+import { validation } from '../../Middlewares/validation.middleware.js';
+import { shareProfileValidation } from './user.validation.js';
+
 
 
 const router = Router();
@@ -14,5 +17,9 @@ router.get('/profile',
     authorization({ accessRoles : endPoints.getProfile }) ,
     userRouter.profile)
 
+router.get('/share-profile/:userId', 
+    validation(shareProfileValidation),
+    userRouter.shareProfile
+)
 
 export default router;
