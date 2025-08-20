@@ -29,7 +29,7 @@ router.patch('/update-profile',
     authorization({ accessRoles : endPoints.updateProfile }) ,
      userRouter.updateProfile)
 
-router.delete('{:userId}/freeze-account', 
+router.delete('{/:userId}/freeze-account', 
     validation(freezeAccountValidation) ,
     authentication({ tokenType : tokenTypeEnum.access }) , 
     authorization({ accessRoles : endPoints.freezeAccount }) ,

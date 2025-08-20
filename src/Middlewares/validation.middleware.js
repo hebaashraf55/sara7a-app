@@ -1,4 +1,6 @@
 import joi from 'joi';
+import mongoose from "mongoose";
+const { Types } = mongoose;
 
 
 export const generalFields = {
