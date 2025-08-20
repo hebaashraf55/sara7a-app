@@ -9,7 +9,9 @@ import { validation } from '../../Middlewares/validation.middleware.js';
 import { shareProfileValidation , 
     updateProfileValidation , 
     freezeAccountValidation,
-    restoreAccountValidation } from './user.validation.js';
+    restoreAccountValidation ,
+    hardDeleteAccountValidation ,
+    updatePasswordValidation } from './user.validation.js';
 
 
 
@@ -35,11 +37,36 @@ router.delete('{/:userId}/freeze-account',
     authentication({ tokenType : tokenTypeEnum.access }) , 
     authorization({ accessRoles : endPoints.freezeAccount }) ,
      userRouter.freezeAccount)
-
+// restore by admin
 router.patch('/:userId/restore-account', 
     validation(restoreAccountValidation) ,
     authentication({ tokenType : tokenTypeEnum.access }) , 
     authorization({ accessRoles : endPoints.restoreAccount }) ,
      userRouter.restoreAccount)
+
+// restore by user 
+router.patch('/:userId/restored-by-user',
+    validation(restoreAccountValidation),
+    authentication({ tokenType: tokenTypeEnum.access }),
+    authorization({ accessRoles: endPoints.restoredByUser }),
+    userRouter.restoredByUser,
+)
+
+// hard delete by admin
+router.delete('/:userId/hard-delete',
+    validation(hardDeleteAccountValidation),
+    authentication({ tokenType: tokenTypeEnum.access }),
+    authorization({ accessRoles: endPoints.hardDeleteAccount }),
+    userRouter.hardDelete
+)
+
+// update password
+router.patch('/update-password', 
+    validation(updatePasswordValidation) ,
+    authentication({ tokenType : tokenTypeEnum.access }) , 
+    authorization({ accessRoles : endPoints.updatePassword }) ,
+     userRouter.updatePassword)
+
+
 
 export default router;

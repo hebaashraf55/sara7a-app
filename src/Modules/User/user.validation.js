@@ -27,3 +27,15 @@ export const restoreAccountValidation = {
         userId : generalFields.id.required()
     })
 }
+export const hardDeleteAccountValidation = {
+    params : joi.object({
+        userId : generalFields.id.required()
+    })
+}
+export const updatePasswordValidation = {
+    body : joi.object({
+        oldPassword : generalFields.password.required(),
+        password : generalFields.password.not(joi.ref('oldPassword')).required(),
+        confirmPassword : generalFields.confirmPassword
+    }).required()
+}
