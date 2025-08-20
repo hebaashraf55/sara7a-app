@@ -78,3 +78,27 @@ export const freezeAccount = async (req, res, next) => {
         : next ( new Error("Invalid Account", { cause: 404 }))
 
 }
+
+export const restoreAccount = async ( req , res, next ) => {
+    
+    const { userId } = req.params
+    const updatedUser = await dbService.findOneAndUpdate({
+        model : UserModel ,
+        filter : {
+            _id : userId ,
+            deletedAt : { $exists : true },
+            deletedBy : { $ne : userId}
+        },
+        data : {
+            $unset : { deletedAt : true , deletedBy : true },
+            restoredAt : Date.now(),
+            restoredBy : req.user._id
+        }
+    })
+    return updatedUser ? successResponse({ 
+        res, 
+        statusCode: 200, 
+        message: "User account restored successfully", 
+        data: { updatedUser } }) 
+        : next ( new Error("Invalid Account", { cause: 404 }))
+}

@@ -21,3 +21,9 @@ export const freezeAccountValidation = {
         userId : generalFields.id
     })
 }
+
+export const restoreAccountValidation = {
+    params : joi.object({
+        userId : generalFields.id.required()
+    })
+}

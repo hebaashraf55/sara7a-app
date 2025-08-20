@@ -8,7 +8,8 @@ import { endPoints } from './user.authorization.js';
 import { validation } from '../../Middlewares/validation.middleware.js';
 import { shareProfileValidation , 
     updateProfileValidation , 
-    freezeAccountValidation } from './user.validation.js';
+    freezeAccountValidation,
+    restoreAccountValidation } from './user.validation.js';
 
 
 
@@ -34,5 +35,11 @@ router.delete('{/:userId}/freeze-account',
     authentication({ tokenType : tokenTypeEnum.access }) , 
     authorization({ accessRoles : endPoints.freezeAccount }) ,
      userRouter.freezeAccount)
+
+router.patch('/:userId/restore-account', 
+    validation(restoreAccountValidation) ,
+    authentication({ tokenType : tokenTypeEnum.access }) , 
+    authorization({ accessRoles : endPoints.restoreAccount }) ,
+     userRouter.restoreAccount)
 
 export default router;
