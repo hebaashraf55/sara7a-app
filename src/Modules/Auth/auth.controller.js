@@ -1,5 +1,5 @@
-import { Router } from 'express'
-import * as authRouter from './auth.servece.js'
+import { Router } from 'express';
+import * as authRouter from './auth.servece.js';
 import { authentication, tokenTypeEnum } from '../../Middlewares/authentication.middleware.js';
 import { validation } from '../../Middlewares/validation.middleware.js';
 import { signUpValidation , logInValidation, socialLoginValidation , confirmEmailValidation} from './auth.validation.js';

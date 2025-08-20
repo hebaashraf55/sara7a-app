@@ -54,6 +54,16 @@ const userSchema = new Schema({
     confirmEmail: Date ,
     photo : String,
     confirmEmailOTP : String,
+    deletedAt : Date,
+    deletedBy : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'User'
+    },
+    restoredAt : Date,
+    restoredBy : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'User'
+    },
     provider : {
         type : String,
         enum : {
