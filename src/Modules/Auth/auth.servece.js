@@ -256,3 +256,74 @@ export const refreshToken = async ( req, res, next ) => {
         data: { accessToken , refresToken } })
 
 }
+// forget password
+export const forgetPassword = async (req, res, next) => {
+    const {email} = req.body;
+
+    const otp = await customAlphabet('0123456789', 6)()
+    const hashOTP = await hash({ plainText : otp })
+    const user = await dbService.findOneAndUpdate({
+        model : UserModel,
+        filter : { 
+            email,
+            provider : providers.system,
+            confirmEmail : { $exists : true },
+            deletedAt : { $exists : false }
+        },
+        data : { forgetPasswordOTP : hashOTP }
+    })
+    if(!user) {
+        return next(new Error("User not found or email not confirmed", { cause: 404 }))
+    } /// error when test in postman
+    emailEvent.emit('forgetPassword', { 
+        to : email , 
+        otp , 
+        firstName : user.firstName })
+
+    return successResponse({ 
+        res, 
+        statusCode: 200, 
+        message: "Check your inbox to reset your password", 
+        data: { otp } })
+
+}
+
+export const resetPassword = async (req, res, next) => {
+
+    const { email , otp , password } = req.body;
+    const user = await dbService.findOne({ 
+        model : UserModel , 
+        filter : { 
+            email,
+            provider : providers.system,
+            confirmEmail : { $exists : true },
+            deletedAt : { $exists : false },
+            forgetPasswordOTP : { $exists : true } } 
+    })
+    if(!user) {
+        return next(new Error("Invalid Account", { cause: 404 }))
+    }
+    if(!await compare({ plainText : otp, hash : user.forgetPasswordOTP })) {
+        return next ( new Error("Invalid OTP"), { cause: 400 })
+    }
+    const hashedPassword = await hash({ plainText : password })
+
+    const updatedUser = await dbService.updateOne({ 
+        model : UserModel , 
+        filter : { 
+            email,
+         },
+        data : {
+             password : hashedPassword , 
+             $unset : { forgetPasswordOTP : true },
+             $inc : {__v : 1}
+            } 
+    })
+    return updatedUser 
+        ? successResponse({ 
+        res, 
+        statusCode: 200, 
+        message: "Password updated successfully", 
+        data: { user : updatedUser } }) 
+        : next ( new Error("Invalid Account", { cause: 404 }))
+}

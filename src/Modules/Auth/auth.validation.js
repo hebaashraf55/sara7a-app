@@ -46,3 +46,17 @@ export const confirmEmailValidation = {
     }).required()
 }
 
+export const forgetPasswordValidation = {
+    body : joi.object({
+        email : generalFields.email.required()
+    }).required()
+}
+
+export const resetPasswordValidation = {
+    body : joi.object({
+        email : generalFields.email.required(),
+        otp : generalFields.otp.required(),
+        password : generalFields.password.required(),
+        confirmPassword : generalFields.confirmPassword
+    }).required()
+}

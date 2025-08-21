@@ -1,10 +1,10 @@
 
-export const template = (code , firstName) => `
+export const template = (code , firstName , subject ) => `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Email Verification</title>
+  <title>${subject}</title>
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; margin: auto; background: #ffffff; padding: 20px; border-radius: 8px;">
