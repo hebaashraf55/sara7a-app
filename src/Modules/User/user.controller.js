@@ -12,6 +12,7 @@ import { shareProfileValidation ,
     restoreAccountValidation ,
     hardDeleteAccountValidation ,
     updatePasswordValidation } from './user.validation.js';
+import { localFileUpload } from '../../Utiles/multer/local.multer.js';
 
 
 
@@ -67,6 +68,11 @@ router.patch('/update-password',
     authorization({ accessRoles : endPoints.updatePassword }) ,
      userRouter.updatePassword)
 
+router.patch ('/update-profile-image',
+    authentication({ tokenType : tokenTypeEnum.access }) , 
+    localFileUpload().single('profileImage'),
+    userRouter.updateProfileImage
+)
 
 
 export default router;

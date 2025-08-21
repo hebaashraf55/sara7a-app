@@ -199,3 +199,29 @@ export const updatePassword = async (req, res, next) => {
         data: { updatedUser } }) 
         : next ( new Error("Invalid Account", { cause: 404 }))
 }
+
+export const updateProfileImage = async (req, res , next) => {
+    successResponse({
+        res,
+        statusCode: 200,
+        message: "Profile image updated successfully",
+        data: { file : req.file }
+    })
+}
+
+
+// export const updateProfileImage = async (req, res, next) => {
+//     const { userId } = req.params
+//     const updatedUser = await dbService.findOneAndUpdate({ 
+//         model : UserModel , 
+//         filter : { _id : userId || req.user._id },
+//         data : { profileImage : req.file.path } 
+//     })
+//     return updatedUser 
+//         ? successResponse({ 
+//         res, 
+//         statusCode: 200, 
+//         message: "Profile image updated successfully", 
+//         data: { updatedUser } }) 
+//         : next ( new Error("Invalid Account", { cause: 404 }))
+// }
