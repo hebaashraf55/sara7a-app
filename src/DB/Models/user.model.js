@@ -65,6 +65,7 @@ const userSchema = new Schema({
         ref : 'User'
     },
     forgetPasswordOTP : String,
+    changCredentialsTime : Date,
     provider : {
         type : String,
         enum : {
@@ -81,7 +82,6 @@ const userSchema = new Schema({
         },
         default : roles.user
     }
-
 },
  {timestamps: true}
 );

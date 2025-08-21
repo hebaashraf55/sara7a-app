@@ -1,7 +1,7 @@
 import { UserModel } from "../DB/Models/user.model.js";
 import * as dbService from "../DB/dbService.js";
-import { verifyToken , getSignature , signatureEnum } from "../Utiles/token/token.utils.js";
-
+import { verifyToken , getSignature } from "../Utiles/token/token.utils.js";
+import { TokenModle } from "../DB/Models/token.model.js";
 
 export const tokenTypeEnum = {
     access : 'access',
@@ -24,25 +24,37 @@ const decodedToken = async ({ authorization , tokenType = tokenTypeEnum.access ,
             ? signature.accessSignature 
             : signature.refreshSignature 
         })
-        const user = await dbService.findById( { 
+
+        if (
+            decoded.jti &&
+             (await dbService.findOne(
+            { model : TokenModle ,
+              filter : { jti : decoded.jti },
+              }
+        ))){
+            return next(new Error ("Token is revoked" , { cause : 401 }))
+        }
+        const user = await dbService.findById({ 
             model : UserModel ,
             id : { _id : decoded._id }
         })
         if(!user) 
-            return next(new Error ("User Not Found") , { cause : 404 })
-        return user
-}
+            return next(new Error ("User Not Found" , { cause : 404 }))
+        return { user, decoded };
+};
 
 
 export const authentication = ({ tokenType = tokenTypeEnum.access}) => {
-
     return async (req, res, next) => {
-        req.user = await decodedToken({
+        
+        const { user, decoded } = await decodedToken({
             authorization : req.headers.authorization,
             tokenType,
             next
-        })
-        return next()
+        } || {})
+        req.user = user
+        req.decoded = decoded
+        return next();
     }
 }
 

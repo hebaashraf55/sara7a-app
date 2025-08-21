@@ -15,6 +15,10 @@ router.post('/signup', validation(signUpValidation),authRouter.signUp)
 
 router.post('/login', validation(logInValidation),  authRouter.logIn)
 
+router.post('/logout', 
+    authentication({ tokenType : tokenTypeEnum.access }) ,  
+    authRouter.logout)
+
 router.post('/social-login', validation(socialLoginValidation) ,authRouter.logInWithGmail)
 
 router.get('/refresh-token', authentication({

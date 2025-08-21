@@ -4,11 +4,11 @@ import { successResponse } from '../../Utiles/successRespons.utils.js';
 import  * as dbService from '../../DB/dbService.js';
 import { compare, hash } from '../../Utiles/hashing/hash.utils.js';
 import { encrypt } from '../../Utiles/encription/encryption.utils.js';
-import { signToken } from '../../Utiles/token/token.utils.js';
+import { getNewLogInCredentials, signToken } from '../../Utiles/token/token.utils.js';
 import { OAuth2Client } from 'google-auth-library';
-import { getSignature , signatureEnum  } from '../../Utiles/token/token.utils.js';
 import { emailEvent } from '../../Utiles/events/event.utiles.js';
 import { customAlphabet } from 'nanoid';
+import { TokenModle } from '../../DB/Models/token.model.js';
 
 
 
@@ -71,35 +71,32 @@ export const logIn = async (req, res, next) => {
         if(!user.confirmEmail) {
             return next ( new Error("Email not confirmed or user not found"), { cause: 401 })
         }
-        let signature = await getSignature({
-            signatureLevel : user.role != roles.user ? signatureEnum.admin : signatureEnum.user
-        })
-        const accessToken = signToken({
-            payload : { _id : user._id },
-            signature : signature.accessSignature,
-            options : {
-                issuer : "sara7aApp",
-                expiresIn : "1d",
-                subject : "Authentication"
-            }
-        })
-        const refreshToken = signToken({
-            payload : { _id : user._id },
-            signature : signature.refreshSignature,
-            options : {
-                issuer : "sara7aApp",
-                expiresIn : "7d",
-                subject : "Authentication"
-            }
-        })
-        // if ( !user) 
-        //     return next ( new Error("User not found"), { cause: 404 })
+        const newCredentials = await getNewLogInCredentials(user)
 
         return  successResponse({ 
             res, 
             statusCode: 200, 
             message: "User logged in successfully", 
-            data: { accessToken , refreshToken } })
+            data: { newCredentials } })
+}
+// logOut
+export const logout = async ( req, res, next ) => {
+    const { flag } = req.body
+   await dbService.create({
+    model: TokenModle,
+    data: [{
+        jti : req.decoded.jti,
+        userId : req.user._id,
+        expiresIn : Date.now() - req.decoded.exp,
+    }]
+       
+   })
+    return successResponse({ 
+        res, 
+        statusCode: 201, 
+        message: "User logged out successfully", 
+         })
+
 }
 
 // confirm email
@@ -166,27 +163,13 @@ export const logInWithGmail = async (req, res, next) => {
     // if user find  login
     if(user) {
         if(user.provider === providers.google){
-            const accessToken = signToken({
-            payload : { _id : user._id },
-            options : {
-                issuer : "sara7aApp",
-                signature : "secret",
-                expiresIn : "1d"
-            }
-        })
-        const refreshToken = signToken({
-            payload : { _id : user._id },
-            options : {
-                issuer : "sara7aApp",
-                signature : "secret",
-                expiresIn : "7d"
-            }
-        })
+            const newCredentials = await getNewLogInCredentials(user)
+
         return  successResponse({ 
             res, 
             statusCode: 200, 
             message: "User logged in successfully", 
-            data: { accessToken , refreshToken } })
+            data: {newCredentials } })
         }   
    }
    // if user not find  create new user
@@ -224,36 +207,17 @@ export const logInWithGmail = async (req, res, next) => {
             data: { accessToken , refreshToken } })
 }
 
-
+// refresh token
 export const refreshToken = async ( req, res, next ) => {
 
     const user = req.user;
-    let signature = await getSignature({ 
-        signatureLevel : user.role != roles.user ? signatureEnum.admin : signatureEnum.user 
-     })
-    const accessToken = signToken({
-        payload : { _id : user._id },
-        signature : signature.accessSignature,
-         options : {
-                issuer : "sara7aApp",
-                expiresIn : "1d",
-                subject : "Authentication"
-            }
-    })
-    const refresToken = signToken({
-        payload : { _id : user._id },
-        signature : signature.refreshSignature,
-        options : {
-                issuer : "sara7aApp",
-                expiresIn : "7d",
-                subject : "Authentication"
-            }
-    })
+    
+    const newCredentials = await getNewLogInCredentials(user)
     return  successResponse({ 
         res, 
         statusCode: 200, 
         message: "New Credentials Generated successfully", 
-        data: { accessToken , refresToken } })
+        data: { newCredentials} })
 
 }
 // forget password
@@ -287,7 +251,7 @@ export const forgetPassword = async (req, res, next) => {
         data: { otp } })
 
 }
-
+// reset password
 export const resetPassword = async (req, res, next) => {
 
     const { email , otp , password } = req.body;
@@ -327,3 +291,4 @@ export const resetPassword = async (req, res, next) => {
         data: { user : updatedUser } }) 
         : next ( new Error("Invalid Account", { cause: 404 }))
 }
+

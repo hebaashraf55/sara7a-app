@@ -1,4 +1,6 @@
 import jwt from 'jsonwebtoken';
+import { roles } from "../../DB/Models/user.model.js";
+import { nanoid } from "nanoid";
 
 export const signatureEnum = {
     admin : "Admin",
@@ -37,4 +39,33 @@ export const getSignature = async ({signatureLevel = signatureEnum.user}) => {
         }
 
         return signature;
+}
+
+export const getNewLogInCredentials = async (user) => {
+    let signatur = await getSignature({
+        signatureLevel : user.role != roles.user ? signatureEnum.admin : signatureEnum.user
+    })
+
+    const jwtid = nanoid();
+    const accessToken = signToken({
+        payload : { _id : user._id },
+        signature : signatur.accessSignature,
+        options : {
+                issuer : "sara7aApp",
+                expiresIn : "1d",
+                subject : "Authentication",
+                jwtid ,
+            }
+    })
+    const refresToken = signToken({
+        payload : { _id : user._id },
+        signature : signatur.refreshSignature,
+        options : {
+                issuer : "sara7aApp",
+                expiresIn : "7d",
+                subject : "Authentication",
+                jwtid ,
+            }
+    })
+    return { accessToken , refresToken }
 }
