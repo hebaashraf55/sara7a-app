@@ -3,6 +3,8 @@ import { successResponse } from "../../Utiles/successRespons.utils.js";
 import * as dbService from "../../DB/dbService.js";
 import { roles, UserModel } from "../../DB/Models/user.model.js";
 import { compare, hash } from "../../Utiles/hashing/hash.utils.js";
+import { TokenModel } from "../../DB/Models/token.model.js"
+import { logOutEnums} from "../../Utiles/token/token.utils.js";
 
 export const profile = async (req, res, next) => {
     // user {} 
@@ -157,23 +159,43 @@ export const hardDelete = async ( req , res, next ) => {
 
 // update password
 export const updatePassword = async (req, res, next) => {
-    const { oldPassword , password } = req.body
+    const { oldPassword , password , flag } = req.body
      // check if old password is == new password 
      if (!await compare({plainText : oldPassword , hash : req.user.password})) {
         return next (new Error("Old password is incorrect", { cause: 400 }))
      }
+     let updatedData = {}
+     switch (flag) {
+        case logOutEnums.logOutFromAllDevices:
+             updatedData.changCredentialsAt = Date.now()
+             break;
+        case logOutEnums.logOut:
+             await dbService.create({
+                 model: TokenModel,
+                 data: [{
+                     jti : req.decoded.jti,
+                     userId : req.user._id,
+                     expiresIn : Date.now() - req.decoded.iat,
+                 }]
+             })
+             break;
+        default:
+             break;
+     }
+
     const updatedUser = await dbService.findOneAndUpdate({ 
         model : UserModel , 
         filter : { _id : req.user._id },
         data : {
              password : await hash({ plainText : password }) 
-            } 
+            } ,
+            ...updatedData
     })
     return updatedUser 
         ? successResponse({ 
         res, 
         statusCode: 200, 
         message: "Password updated successfully", 
-        data: { user : updatedUser } }) 
+        data: { updatedUser } }) 
         : next ( new Error("Invalid Account", { cause: 404 }))
 }

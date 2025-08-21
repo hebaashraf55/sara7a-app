@@ -6,6 +6,11 @@ export const signatureEnum = {
     admin : "Admin",
     user : "User"
 }
+export const logOutEnums = {
+    logOutFromAllDevices : "logOutFromAllDevices",
+    logOut : "logOut",
+    stayLogedIn : "stayLogedIn",
+}
 
 export const signToken = ({
     payload = {},

@@ -1,5 +1,6 @@
 import joi from 'joi';
 import { generalFields } from '../../Middlewares/validation.middleware.js';
+import { logOutEnums } from '../../Utiles/token/token.utils.js';
 
 export const shareProfileValidation = {
     params : joi.object({
@@ -34,6 +35,7 @@ export const hardDeleteAccountValidation = {
 }
 export const updatePasswordValidation = {
     body : joi.object({
+        flag: joi.string().valid(...Object.values(logOutEnums)).default(logOutEnums.stayLogedIn),
         oldPassword : generalFields.password.required(),
         password : generalFields.password.not(joi.ref('oldPassword')).required(),
         confirmPassword : generalFields.confirmPassword

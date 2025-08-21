@@ -1,19 +1,20 @@
 import { UserModel } from "../DB/Models/user.model.js";
 import * as dbService from "../DB/dbService.js";
 import { verifyToken , getSignature } from "../Utiles/token/token.utils.js";
-import { TokenModle } from "../DB/Models/token.model.js";
+import { TokenModel } from "../DB/Models/token.model.js";
 
 export const tokenTypeEnum = {
     access : 'access',
     refresh : 'refresh'
 }
 
-const decodedToken = async ({ authorization , tokenType = tokenTypeEnum.access ,next }) => {
+// decoded token
+const decodedToken = async ({ authorization , tokenType = tokenTypeEnum.access , next }) => {
         
         const [ bearer , token ] = authorization.split(" ") || [];
 
-        if(!bearer || !token)
-            return next(new Error ("Invalid Token") , { cause : 400 })
+        if( !bearer || !token )
+            return next(new Error ("Invalid Token" , { cause : 400 }))
         let signature = await getSignature({ 
             signatureLevel : bearer 
          })
@@ -24,11 +25,10 @@ const decodedToken = async ({ authorization , tokenType = tokenTypeEnum.access ,
             ? signature.accessSignature 
             : signature.refreshSignature 
         })
-
         if (
             decoded.jti &&
              (await dbService.findOne(
-            { model : TokenModle ,
+            { model : TokenModel ,
               filter : { jti : decoded.jti },
               }
         ))){
@@ -40,10 +40,14 @@ const decodedToken = async ({ authorization , tokenType = tokenTypeEnum.access ,
         })
         if(!user) 
             return next(new Error ("User Not Found" , { cause : 404 }))
+
+        if(user.changCredentialsTime?.getTime() >  decoded.iat * 1000 ){
+            return next(new Error ("Token Expired" , { cause : 401 }))
+        }
         return { user, decoded };
 };
 
-
+// authentication
 export const authentication = ({ tokenType = tokenTypeEnum.access}) => {
     return async (req, res, next) => {
         
@@ -52,12 +56,13 @@ export const authentication = ({ tokenType = tokenTypeEnum.access}) => {
             tokenType,
             next
         } || {})
+
         req.user = user
         req.decoded = decoded
         return next();
     }
 }
-
+// authorization
 export const authorization = ({accessRoles = []}) => {
     return (req, res, next) => {
         if(!accessRoles.includes(req.user.role))
@@ -65,3 +70,4 @@ export const authorization = ({accessRoles = []}) => {
         return next()
     }
 }
+

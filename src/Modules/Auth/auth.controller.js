@@ -7,7 +7,8 @@ import { signUpValidation ,
     socialLoginValidation ,  
     confirmEmailValidation , 
     forgetPasswordValidation ,
-    resetPasswordValidation} from './auth.validation.js';
+    resetPasswordValidation,
+    logOutValidation} from './auth.validation.js';
 
 const router = Router();
 
@@ -16,6 +17,7 @@ router.post('/signup', validation(signUpValidation),authRouter.signUp)
 router.post('/login', validation(logInValidation),  authRouter.logIn)
 
 router.post('/logout', 
+    validation(logOutValidation),
     authentication({ tokenType : tokenTypeEnum.access }) ,  
     authRouter.logout)
 

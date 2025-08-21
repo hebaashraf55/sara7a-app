@@ -8,8 +8,8 @@ import { getNewLogInCredentials, signToken } from '../../Utiles/token/token.util
 import { OAuth2Client } from 'google-auth-library';
 import { emailEvent } from '../../Utiles/events/event.utiles.js';
 import { customAlphabet } from 'nanoid';
-import { TokenModle } from '../../DB/Models/token.model.js';
-
+import { TokenModel } from '../../DB/Models/token.model.js';
+import { logOutEnums } from '../../Utiles/token/token.utils.js';
 
 
 // sign up
@@ -81,19 +81,33 @@ export const logIn = async (req, res, next) => {
 }
 // logOut
 export const logout = async ( req, res, next ) => {
-    const { flag } = req.body
-   await dbService.create({
-    model: TokenModle,
-    data: [{
-        jti : req.decoded.jti,
-        userId : req.user._id,
-        expiresIn : Date.now() - req.decoded.exp,
-    }]
-       
-   })
+    const { flag } = req.body;
+    let status = 200;
+    switch(flag) {
+        case logOutEnums.logOutFromAllDevices :
+            await dbService.updateOne({
+                 model : UserModel , 
+                 filter : { _id : req.user._id },
+                data: {
+                    changCredentialsTime : Date.now()
+                } })
+            break;
+        default:
+            await dbService.create({
+            model: TokenModle,
+            data: [{
+                jti : req.decoded.jti,
+                userId : req.user._id,
+                expiresIn : Date.now() - req.decoded.exp,
+            }] 
+        })
+        status = 201
+        break;
+    }
+
     return successResponse({ 
         res, 
-        statusCode: 201, 
+        statusCode: status, 
         message: "User logged out successfully", 
          })
 

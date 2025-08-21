@@ -1,5 +1,6 @@
 import joi from 'joi';
 import { generalFields } from '../../Middlewares/validation.middleware.js';
+import { logOutEnums } from '../../Utiles/token/token.utils.js';
 
 
 export const signUpValidation = {
@@ -58,5 +59,11 @@ export const resetPasswordValidation = {
         otp : generalFields.otp.required(),
         password : generalFields.password.required(),
         confirmPassword : generalFields.confirmPassword
+    }).required()
+}
+
+export const logOutValidation = {
+    body : joi.object({
+        flag : joi.string().valid(...Object.values(logOutEnums)).default(logOutEnums.stayLogedIn)
     }).required()
 }
