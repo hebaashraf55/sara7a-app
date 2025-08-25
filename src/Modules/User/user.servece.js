@@ -5,6 +5,7 @@ import { roles, UserModel } from "../../DB/Models/user.model.js";
 import { compare, hash } from "../../Utiles/hashing/hash.utils.js";
 import { TokenModel } from "../../DB/Models/token.model.js"
 import { logOutEnums} from "../../Utiles/token/token.utils.js";
+import { log } from "console";
 
 export const profile = async (req, res, next) => {
     // user {} 
@@ -56,8 +57,15 @@ export const freezeAccount = async (req, res, next) => {
 
     const { userId } = req.params
 
-    if( userId && req.user.role !== roles.admin) {
-        return next (new Error("You are not authorized to freeze this account", { cause: 403 }))
+    // if(( userId && req.user.role !== roles.admin) || (userId !== req.user._id.toString() )) {
+    //     return next (new Error("You are not authorized to freeze this account", { cause: 403 }))
+    // }
+        if(!userId){
+    return next(new Error("userId is required", { cause: 400 }));
+    }
+
+    if( (req.user.role !== roles.admin) &&   (req.user.role === roles.user && userId !== req.user._id.toString())){
+    return next(new Error("You are not authorized to freeze this account", { cause: 403 }));
     }
     const UpdatedUser = await dbService.findOneAndUpdate({ 
         model : UserModel , 
@@ -106,30 +114,36 @@ export const restoreAccount = async ( req , res, next ) => {
         : next ( new Error("Invalid Account", { cause: 404 }))
 }
 
-
 // restored by user ---------------//?//
 export const restoredByUser = async ( req , res, next ) => {
     const { userId } = req.params;
-
     const targetId = userId || req.user._id;
-
-      if (userId && req.user.role === roles.user && userId != req.user._id) {
+    console.log(userId, req.user._id);
+    console.log(req.user.role, roles.user)
+    //   if (userId && req.user.role === roles.user && userId != req.user._id) 
+    if ((userId !== req.user._id.toString() ) || (req.user.role !== roles.user)) {
     return next(
       new Error("You are not authorized to restore this account", { cause: 403 })
     );
   }
+    const myUser = await dbService.findById({
+        model : UserModel ,
+        id : userId
+    })
+  console.log(myUser)
     const updatedUser = await dbService.findOneAndUpdate({
         model : UserModel ,
         filter : {
             _id : targetId ,
-            restoredAt : { $exists : true }
+            deletedAt : { $exists : true }
         },
         data : {
-            $unset : { restoredAt : true , restoredBy : true },
-            deletedAt : Date.now(),
-            deletedBy : req.user._id
+            $unset : { deletedAt : true , deletedBy : true },
+            restoredAt : Date.now(),
+            restoredBy : req.user._id
         }
     })
+    console.log(updatedUser)
     return updatedUser ? successResponse({ 
         res, 
         statusCode: 200, 

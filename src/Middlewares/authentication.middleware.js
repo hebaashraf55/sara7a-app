@@ -51,7 +51,7 @@ const decodedToken = async ({ authorization , tokenType = tokenTypeEnum.access ,
 export const authentication = ({ tokenType = tokenTypeEnum.access}) => {
     return async (req, res, next) => {
         
-        const { user, decoded , file} = await decodedToken({
+        const { user, decoded , file } = await decodedToken({
             authorization : req.headers.authorization,
             tokenType,
             next
