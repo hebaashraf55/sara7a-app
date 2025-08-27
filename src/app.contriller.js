@@ -13,6 +13,7 @@ const bootstrap = async (app, express) => {
 
     await connectDB();
 
+    app.use('/uploads', express.static('./src/uploads'))
     app.use('/api/auth', authRouter);
     app.use('/api/user', userRouter);
     app.use('/api/message', messageRouter);

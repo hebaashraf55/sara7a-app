@@ -94,7 +94,7 @@ export const logout = async ( req, res, next ) => {
             break;
         default:
             await dbService.create({
-            model: TokenModle,
+            model:TokenModel,
             data: [{
                 jti : req.decoded.jti,
                 userId : req.user._id,

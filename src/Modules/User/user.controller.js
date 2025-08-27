@@ -11,8 +11,10 @@ import { shareProfileValidation ,
     freezeAccountValidation,
     restoreAccountValidation ,
     hardDeleteAccountValidation ,
-    updatePasswordValidation } from './user.validation.js';
-import { localFileUpload } from '../../Utiles/multer/local.multer.js';
+    updatePasswordValidation , 
+    porfileImageValidation,
+    coverImagesValidation } from './user.validation.js';
+import { fileValidation, localFileUpload } from '../../Utiles/multer/local.multer.js';
 
 
 
@@ -68,10 +70,22 @@ router.patch('/update-password',
     authorization({ accessRoles : endPoints.updatePassword }) ,
      userRouter.updatePassword)
 
-router.patch ('/update-profile-image',
+router.patch ('/profile-image',
     authentication({ tokenType : tokenTypeEnum.access }) , 
-    localFileUpload().single('profileImage'),
+    localFileUpload({customPath : "User" , 
+        validation : [...fileValidation.images]})
+        .single('image'),
+        validation(porfileImageValidation),
     userRouter.updateProfileImage
+)
+
+router.patch ('/cover-images',
+    authentication({ tokenType : tokenTypeEnum.access }) , 
+    localFileUpload({ customPath : "User" , 
+        validation : [...fileValidation.images],
+    }).array('images', 5),
+    validation(coverImagesValidation),
+    userRouter.coverImages
 )
 
 

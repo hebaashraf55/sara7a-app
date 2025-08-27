@@ -114,7 +114,7 @@ export const restoreAccount = async ( req , res, next ) => {
         : next ( new Error("Invalid Account", { cause: 404 }))
 }
 
-// restored by user ---------------//?//
+// restored by user ---------------
 export const restoredByUser = async ( req , res, next ) => {
     const { userId } = req.params;
     const targetId = userId || req.user._id;
@@ -214,15 +214,39 @@ export const updatePassword = async (req, res, next) => {
         : next ( new Error("Invalid Account", { cause: 404 }))
 }
 
+// update profile image
 export const updateProfileImage = async (req, res , next) => {
+    const user = await dbService.findOneAndUpdate({
+        model : UserModel ,
+        filter : { _id : req.user._id },
+        data : { profileImage : req.file.finalpath }
+    })
     successResponse({
         res,
         statusCode: 200,
         message: "Profile image updated successfully",
-        data: { file : req.file }
+        data: { user }
     })
 }
 
+
+export const coverImages = async ( req, res, next) => {
+
+        const user = await dbService.findOneAndUpdate({
+        model : UserModel ,
+        filter : { _id : req.user._id },
+        data : { 
+            coverImages : req.files.map((file)=> file.finalpath)
+         }
+    })
+
+    successResponse({
+        res,
+        statusCode: 200,
+        message: "Profile image updated successfully",
+        data: { user }
+    })
+}
 
 // export const updateProfileImage = async (req, res, next) => {
 //     const { userId } = req.params

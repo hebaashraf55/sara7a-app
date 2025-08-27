@@ -22,13 +22,22 @@ export const generalFields = {
     gender : joi.string().valid('Male', 'Female').default('Male'),
     role : joi.string().valid('USER', 'ADMIN').default('USER'),
     phone : joi.string().pattern(/^(002|\+2)?01[0125]\d{8}$/),
+    otp : joi.string().pattern(/^\d{6}$/),
     id: joi.string().custom((value, helpers) => {
-        Types.ObjectId.isValid(value) || helpers.message("id is not valid")
+       return(Types.ObjectId.isValid(value) || helpers.message("id is not valid"))
     }),
-    otp : joi.string().pattern(/^\d{6}$/)
-}
-
-
+    file: {
+        fieldname : joi.string(),
+        originalname : joi.string(),
+        encoding : joi.string(),
+        mimetype : joi.string(),
+        size : joi.number().positive(),
+        path : joi.string(),
+        filename : joi.string(),
+        finalpath : joi.string(),
+        destination : joi.string(),
+    }  
+};
 
 
 export const validation = (schema) => {
@@ -36,17 +45,16 @@ export const validation = (schema) => {
 
     const validationError = [];
     for (const key of Object.keys(schema)) {
-        const validationResults = schema[key] .validate(req[key], { abortEarly : false})
+        const validationResults = schema[key].validate(req[key], { abortEarly : false})
                 
     if(validationResults.error){
         validationError.push({
             key , 
-            datails : validationResults.error.details[0].message
+            details : validationResults.error.details[0].message
         })
         } }
-
-    if(validationError.length){
-        return res.status(400).json({error : "validation error" ,  datails : validationError})
+    if(validationError.length){   
+        return res.status(400).json({error : "validation error" ,  details : validationError})
     }
     return next()
     }
