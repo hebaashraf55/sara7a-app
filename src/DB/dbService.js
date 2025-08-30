@@ -44,7 +44,10 @@ export const findOneAndUpdate = async ({
     populate = [],
     options = { runValidators : true , new : true }
 } = {}) => {
-    return await model.findOneAndUpdate(filter, {...data, $inc : {__v : 1 }}, options).select(select).populate(populate)
+    return await model.findOneAndUpdate(
+        filter, 
+        {...data, $inc : {__v : 1 }}, options)
+        .select(select).populate(populate)
 }
 
 export const deleteOne = async ({

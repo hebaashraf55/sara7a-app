@@ -53,7 +53,14 @@ const userSchema = new Schema({
     phone: String,
     confirmEmail: Date ,
     profileImage : String,
-    coverImages : [String],
+    coverImages : [String], // local upload
+
+    profileCloudImage : {
+    secure_url:  String ,
+    public_id: String }
+  ,
+    coverCloudImages : [{ public_id : String, secure_url : String}],
+
     confirmEmailOTP : String,
     deletedAt : Date,
     deletedBy : {

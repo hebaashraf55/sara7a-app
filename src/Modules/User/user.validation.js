@@ -54,7 +54,7 @@ export const porfileImageValidation = {
         size : generalFields.file.size.max(5 * 1024 * 1024).required(), // 5MB
         path : generalFields.file.path.required(),
         filename : generalFields.file.filename.required(),
-        finalpath : generalFields.file.finalpath.required(),
+        finalPath : generalFields.file.finalPath.required(),
         destination : generalFields.file.destination.required()
     }).required(),
 };
@@ -67,10 +67,10 @@ export const coverImagesValidation = {
         originalname : generalFields.file.originalname.required(),
         encoding : generalFields.file.encoding.required(),
         mimetype : generalFields.file.mimetype.valid(...fileValidation.images).required(),
-        size : generalFields.file.size.max(5 * 1024 * 1024).required(),
+        size : generalFields.file.size.max( 5 * 1024 * 1024 ).required(),
         path : generalFields.file.path.required(),
         filename : generalFields.file.filename.required(),
-        finalpath : generalFields.file.finalpath.required(),
+        finalPath : generalFields.file.finalPath.required(),
         destination : generalFields.file.destination.required()
          }).required(),
         )

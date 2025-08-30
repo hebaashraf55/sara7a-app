@@ -33,7 +33,7 @@ export const localFileUpload = ({customPath = "general" , validation = []}) => {
         destination: (req, file, cb) =>{
             if(req.user?._id) basePath+= `/${req.user._id}`
             const fullPath = path.resolve(`./src/${basePath}`)
-            if(!fs.existsSync(fullPath)) fs.mkdirSync(fullPath , { recursive: true })
+            if(!fs.existsSync(fullPath)) fs.mkdirSync(fullPath , { recursive: true }) 
             cb(null, path.resolve(fullPath)); 
         },
         filename : (req, file, cb) => {

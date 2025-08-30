@@ -5,7 +5,7 @@ import { roles, UserModel } from "../../DB/Models/user.model.js";
 import { compare, hash } from "../../Utiles/hashing/hash.utils.js";
 import { TokenModel } from "../../DB/Models/token.model.js"
 import { logOutEnums} from "../../Utiles/token/token.utils.js";
-import { log } from "console";
+import { cloudinaryConfig } from '../../Utiles/multer/cloudinary.js';
 
 export const profile = async (req, res, next) => {
     // user {} 
@@ -215,12 +215,25 @@ export const updatePassword = async (req, res, next) => {
 }
 
 // update profile image
-export const updateProfileImage = async (req, res , next) => {
-    const user = await dbService.findOneAndUpdate({
-        model : UserModel ,
-        filter : { _id : req.user._id },
-        data : { profileImage : req.file.finalpath }
+export const ProfileImage = async (req, res , next) => {
+   
+    const { secure_url, public_id } = await cloudinaryConfig().uploader.upload(req.file.path, {
+        folder : `Sara7a-App/Users/${req.user._id}`
     })
+    const user = await dbService.findOneAndUpdate({      
+        model : UserModel ,
+        filters : { _id : req.user._id },
+        data : { 
+            // profileImage : req.file.finalPath
+            profileCloudImage : { secure_url, public_id },   
+         },     
+    })
+
+    // req.user.porfileCloudImage?.public_id -- destory profileCloudImage
+    if(req.user.profileCloudImage?.public_id) {
+        await cloudinaryConfig().uploader.destroy(req.user.profileCloudImage.public_id)
+    }
+
     successResponse({
         res,
         statusCode: 200,
@@ -229,37 +242,36 @@ export const updateProfileImage = async (req, res , next) => {
     })
 }
 
-
+// update cover images 
 export const coverImages = async ( req, res, next) => {
+
+    const attachments = [];
+    for (const file of req.files){
+        const { secure_url, public_id } = await cloudinaryConfig().uploader.upload(file.path, 
+            { folder : `Sara7a-App/Users/${req.user._id}`})
+            attachments.push({ secure_url, public_id });
+        }
 
         const user = await dbService.findOneAndUpdate({
         model : UserModel ,
         filter : { _id : req.user._id },
         data : { 
-            coverImages : req.files.map((file)=> file.finalpath)
+            coverCloudImages : attachments,
          }
-    })
-
+    })       
+      // ✅ If user already has cover images, destroy them from Cloudinary
+        if (user.coverCloudImages && user.coverCloudImages.length > 0) {
+            for (const img of user.coverCloudImages) {
+                if (img.public_id) {
+                    await cloudinaryConfig().uploader.destroy(img.public_id);
+                }
+            }
+        }
     successResponse({
         res,
         statusCode: 200,
-        message: "Profile image updated successfully",
+        message: "Cover image Added successfully",
         data: { user }
     })
 }
 
-// export const updateProfileImage = async (req, res, next) => {
-//     const { userId } = req.params
-//     const updatedUser = await dbService.findOneAndUpdate({ 
-//         model : UserModel , 
-//         filter : { _id : userId || req.user._id },
-//         data : { profileImage : req.file.path } 
-//     })
-//     return updatedUser 
-//         ? successResponse({ 
-//         res, 
-//         statusCode: 200, 
-//         message: "Profile image updated successfully", 
-//         data: { updatedUser } }) 
-//         : next ( new Error("Invalid Account", { cause: 404 }))
-// }

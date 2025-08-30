@@ -15,7 +15,7 @@ import { shareProfileValidation ,
     porfileImageValidation,
     coverImagesValidation } from './user.validation.js';
 import { fileValidation, localFileUpload } from '../../Utiles/multer/local.multer.js';
-
+import { cloudFileUpload } from '../../Utiles/multer/cloud.multer.js';
 
 
 const router = Router();
@@ -72,19 +72,21 @@ router.patch('/update-password',
 
 router.patch ('/profile-image',
     authentication({ tokenType : tokenTypeEnum.access }) , 
-    localFileUpload({customPath : "User" , 
-        validation : [...fileValidation.images]})
-        .single('image'),
-        validation(porfileImageValidation),
-    userRouter.updateProfileImage
+    // localFileUpload({customPath : "User" , 
+    //     validation : [...fileValidation.images]})
+    //     .single('image'),
+    //     validation(porfileImageValidation),
+    cloudFileUpload({validation : [...fileValidation.images]}).single('image'),
+    userRouter.ProfileImage
 )
 
 router.patch ('/cover-images',
     authentication({ tokenType : tokenTypeEnum.access }) , 
-    localFileUpload({ customPath : "User" , 
-        validation : [...fileValidation.images],
-    }).array('images', 5),
-    validation(coverImagesValidation),
+    // localFileUpload({ customPath : "User" , 
+    //     validation : [...fileValidation.images],
+    // }).array('images', 5),
+    // validation(coverImagesValidation),
+    cloudFileUpload({validation : [...fileValidation.images]}).array('images', 5),
     userRouter.coverImages
 )
 

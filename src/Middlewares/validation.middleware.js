@@ -34,11 +34,10 @@ export const generalFields = {
         size : joi.number().positive(),
         path : joi.string(),
         filename : joi.string(),
-        finalpath : joi.string(),
+        finalPath : joi.string(),
         destination : joi.string(),
     }  
 };
-
 
 export const validation = (schema) => {
     return(req,res,next) => {
