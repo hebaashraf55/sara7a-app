@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema , model } from "mongoose";
 
 
 
@@ -8,7 +8,7 @@ const messageSchema = new Schema({
     content :{
         type : String,
         minLength : 2,
-        maxLength : 2000,
+        maxLength : 20000,
         required : function () {
             return this.attachments.length? false : true
         }
