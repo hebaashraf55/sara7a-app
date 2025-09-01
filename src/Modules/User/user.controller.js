@@ -18,7 +18,10 @@ import { fileValidation, localFileUpload } from '../../Utiles/multer/local.multe
 import { cloudFileUpload } from '../../Utiles/multer/cloud.multer.js';
 
 
-const router = Router();
+const router = Router({
+    caseSensitive : true,
+    strict : true,
+});
 
 router.get('/profile', 
     authentication({ tokenType : tokenTypeEnum.access }) , 

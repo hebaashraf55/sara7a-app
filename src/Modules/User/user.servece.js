@@ -10,11 +10,18 @@ import { cloudinaryConfig } from '../../Utiles/multer/cloudinary.js';
 export const profile = async (req, res, next) => {
     // user {} 
     req.user.phone = decrypt(req.user.phone)
+    
+    const user = await dbService.findById({
+        model : UserModel,
+        id : req.user._id,
+        populate : [{path : 'messages'}]
+    })
+
     return successResponse({ 
         res, 
         statusCode: 200, 
         message: "User profile fetched successfully", 
-        data: { user : req.user } })
+        data: { user } })
 }
 
 export const shareProfile = async (req, res, next) => {

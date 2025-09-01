@@ -6,10 +6,8 @@ import { successResponse } from "../../Utiles/successRespons.utils.js";
 
 
 export const sendMessage = async (req , res, next) => {
-
     const { recieverId } = req.params;
     const { content } = req.body;
-    console.log("Body:", req.body);
 
     if(!await dbService.findOne({
         model : UserModel,
@@ -17,8 +15,7 @@ export const sendMessage = async (req , res, next) => {
             _id : recieverId,
             deletedAt : { $exists : false },
             confirmEmail : { $exists : true }
-        }
-    })
+        }})
     )
     return next(new Error("Invalid recipient account", { cause : 404 }))
 
@@ -30,18 +27,15 @@ export const sendMessage = async (req , res, next) => {
                 folder : `Sara7a-App/Messages/${recieverId}`
             })
             attachments.push({ secure_url, public_id })
-        }
-    }
-
+        } }
     const newMessage = await dbService.create({
         model : MessageModel,
-        data : {
+        data : [{
             content,
             attachments ,
             recieverId  ,
-        }
-    })
-    
+            senderId : req.user?._id
+        }]})
     return successResponse({
         res,
         statusCode : 201,
@@ -50,3 +44,28 @@ export const sendMessage = async (req , res, next) => {
     })
     
 }
+
+
+// test populate
+export const getMessages = async (req, res , next) => {
+    const { userId } = req.params;
+    const messages = await dbService.find({
+        model : MessageModel,
+        filter : {
+            recieverId : userId,
+        },
+        populate : [{
+            path : "recieverId",
+            select : "email gender firstName lastName -_id"
+        }]
+    })
+
+    return successResponse({
+        res,
+        statusCode : 200,
+        message : "Messages fetched successfully",
+        data : { messages },
+    })
+   
+}
+

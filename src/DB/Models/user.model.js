@@ -91,8 +91,17 @@ const userSchema = new Schema({
         default : roles.user
     }
 },
- {timestamps: true}
+ { timestamps: true , toJSON: { virtuals: true } , toObject: { virtuals: true } }
 );
+
+userSchema.virtual('messages', {
+        localField : '_id',
+        foreignField : 'recieverId',
+        ref : 'Message'
+    }
+)
+
+
 
 export const UserModel = mongoose.models.User || model('User', userSchema);
 

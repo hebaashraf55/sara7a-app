@@ -2,7 +2,6 @@ import joi from "joi";
 import { generalFields } from "../../Middlewares/validation.middleware.js";
 import { fileValidation } from "../../Utiles/multer/local.multer.js";
 
-
 export const sendMessageValidation = {
     params : joi.object({
         recieverId : generalFields.id.required()
@@ -19,8 +18,13 @@ export const sendMessageValidation = {
         size : generalFields.file.size.max( 5 * 1024 * 1024 ).required(),
         path : generalFields.file.path.required(),
         filename : generalFields.file.filename.required(),
-        finalPath : generalFields.file.finalPath.required(),
         destination : generalFields.file.destination.required()
          })
         ).min(0).max(3)
+}
+
+export const getMessageValidation = {
+    params : joi.object({
+        userId : generalFields.id.required()
+    }).required(),
 }

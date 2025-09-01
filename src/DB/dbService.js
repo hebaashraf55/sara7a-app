@@ -1,4 +1,12 @@
 
+export const find = async ({
+    model, 
+    filter = {}, 
+    select = '', 
+    populate = []
+} = {}) => {
+    return await model.find(filter).select(select).populate(populate)
+}
 
 export const findOne = async ({
     model, 
