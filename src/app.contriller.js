@@ -6,19 +6,37 @@ import { globalErrorHandler } from './Utiles/errorHandeling.utils.js';
 import cors from 'cors';
 import { attachRoutingWithLogger } from './Utiles/logger/logger.js'
 import { corsOptions } from './Utiles/cors/cors.js';
-
+import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit'; 
 
 const bootstrap = async (app, express) => {
-    app.use(express.json()) // parsing body // global middleware
-
-
+    app.use(express.json()) 
+    app.use(helmet()); 
     app.use(cors(corsOptions()));
 
     await connectDB();
+
+    const limiter = rateLimit({
+        windowMs: 60 * 1000, // 1 minutes
+        limit: 3, // 
+        // standardHeaders: 'draft-8', 
+        // legacyHeaders: false, 
+        message: {
+            status : 429,
+            message : 'Too many requests, please try again later'},
+        handler: (req, res, next, options) => {
+            console.log("🚨 Rate limit triggered for:", req.ip);
+            res.status(options.statusCode).send(options.message);
+        }
+    })
+    // Apply the rate limiting middleware to all requests.
+    app.use(limiter)
+
     attachRoutingWithLogger(app, '/api/auth', authRouter, 'auth.log')
     attachRoutingWithLogger(app, '/api/user', userRouter, 'user.log')
     attachRoutingWithLogger(app, '/api/message', messageRouter, 'message.log')
-    
+
+
 
     app.use('/uploads', express.static('./src/uploads'))
     app.use('/api/auth', authRouter);
