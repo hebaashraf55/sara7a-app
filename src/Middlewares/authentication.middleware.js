@@ -8,7 +8,7 @@ export const tokenTypeEnum = {
     refresh : 'refresh'
 }
 
-// decoded token
+
 const decodedToken = async ({ authorization , tokenType = tokenTypeEnum.access , next }) => {
         
         const [ bearer , token ] = authorization.split(" ") || [];
@@ -47,7 +47,7 @@ const decodedToken = async ({ authorization , tokenType = tokenTypeEnum.access ,
         return { user, decoded };
 };
 
-// authentication
+
 export const authentication = ({ tokenType = tokenTypeEnum.access}) => {
     return async (req, res, next) => {
         
@@ -63,7 +63,7 @@ export const authentication = ({ tokenType = tokenTypeEnum.access}) => {
         return next();
     }
 }
-// authorization
+
 export const authorization = ({accessRoles = []}) => {
     return (req, res, next) => {
         if(!accessRoles.includes(req.user.role))

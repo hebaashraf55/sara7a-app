@@ -3,7 +3,7 @@
 
 export function corsOptions(){
 
-    const whitelist = process.env.WHITELIST.split(',') // []
+    const whitelist = process.env.WHITELIST.split(',') 
     const corsOptions = {
     origin: function (origin, callback) {
         if(!origin){

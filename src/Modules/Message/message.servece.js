@@ -46,7 +46,7 @@ export const sendMessage = async (req , res, next) => {
 }
 
 
-// test populate
+
 export const getMessages = async (req, res , next) => {
     const { userId } = req.params;
     const messages = await dbService.find({

@@ -1,8 +1,10 @@
 import express from 'express';
-import bootstrap from './src/app.contriller.js';
+import dontenv from 'dotenv';
+import bootstrap from './app.contriller.js';
 import chalk from 'chalk';
 
 const app = express()
+dontenv.config({path : './src/config/.env'});
 const port = process.env.PORT ;
 
 await bootstrap(app, express);

@@ -8,7 +8,7 @@ import { logOutEnums} from "../../Utiles/token/token.utils.js";
 import { cloudinaryConfig } from '../../Utiles/multer/cloudinary.js';
 
 export const profile = async (req, res, next) => {
-    // user {} 
+
     req.user.phone = decrypt(req.user.phone)
     
     const user = await dbService.findById({
@@ -63,10 +63,6 @@ export const updateProfile = async (req, res, next) => {
 export const freezeAccount = async (req, res, next) => {
 
     const { userId } = req.params
-
-    // if(( userId && req.user.role !== roles.admin) || (userId !== req.user._id.toString() )) {
-    //     return next (new Error("You are not authorized to freeze this account", { cause: 403 }))
-    // }
         if(!userId){
     return next(new Error("userId is required", { cause: 400 }));
     }
@@ -96,7 +92,7 @@ export const freezeAccount = async (req, res, next) => {
 
 }
 
-// restored by admin
+
 export const restoreAccount = async ( req , res, next ) => {
 
     const { userId } = req.params
@@ -121,13 +117,10 @@ export const restoreAccount = async ( req , res, next ) => {
         : next ( new Error("Invalid Account", { cause: 404 }))
 }
 
-// restored by user ---------------
+
 export const restoredByUser = async ( req , res, next ) => {
     const { userId } = req.params;
-    const targetId = userId || req.user._id;
-    console.log(userId, req.user._id);
-    console.log(req.user.role, roles.user)
-    //   if (userId && req.user.role === roles.user && userId != req.user._id) 
+
     if ((userId !== req.user._id.toString() ) || (req.user.role !== roles.user)) {
     return next(
       new Error("You are not authorized to restore this account", { cause: 403 })
@@ -137,7 +130,7 @@ export const restoredByUser = async ( req , res, next ) => {
         model : UserModel ,
         id : userId
     })
-  console.log(myUser)
+
     const updatedUser = await dbService.findOneAndUpdate({
         model : UserModel ,
         filter : {
@@ -150,7 +143,6 @@ export const restoredByUser = async ( req , res, next ) => {
             restoredBy : req.user._id
         }
     })
-    console.log(updatedUser)
     return updatedUser ? successResponse({ 
         res, 
         statusCode: 200, 
@@ -178,10 +170,10 @@ export const hardDelete = async ( req , res, next ) => {
         : next ( new Error("Invalid Account", { cause: 404 }))
 }
 
-// update password
+
 export const updatePassword = async (req, res, next) => {
     const { oldPassword , password , flag } = req.body
-     // check if old password is == new password 
+     
      if (!await compare({plainText : oldPassword , hash : req.user.password})) {
         return next (new Error("Old password is incorrect", { cause: 400 }))
      }
@@ -221,7 +213,7 @@ export const updatePassword = async (req, res, next) => {
         : next ( new Error("Invalid Account", { cause: 404 }))
 }
 
-// update profile image
+
 export const ProfileImage = async (req, res , next) => {
    
     const { secure_url, public_id } = await cloudinaryConfig().uploader.upload(req.file.path, {
@@ -231,12 +223,11 @@ export const ProfileImage = async (req, res , next) => {
         model : UserModel ,
         filters : { _id : req.user._id },
         data : { 
-            // profileImage : req.file.finalPath
+            
             profileCloudImage : { secure_url, public_id },   
          },     
     })
 
-    // req.user.porfileCloudImage?.public_id -- destory profileCloudImage
     if(req.user.profileCloudImage?.public_id) {
         await cloudinaryConfig().uploader.destroy(req.user.profileCloudImage.public_id)
     }
@@ -249,7 +240,7 @@ export const ProfileImage = async (req, res , next) => {
     })
 }
 
-// update cover images 
+
 export const coverImages = async ( req, res, next) => {
 
     const attachments = [];
@@ -266,7 +257,6 @@ export const coverImages = async ( req, res, next) => {
             coverCloudImages : attachments,
          }
     })       
-      // ✅ If user already has cover images, destroy them from Cloudinary
         if (user.coverCloudImages && user.coverCloudImages.length > 0) {
             for (const img of user.coverCloudImages) {
                 if (img.public_id) {

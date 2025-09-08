@@ -39,8 +39,7 @@ export const getSignature = async ({signatureLevel = signatureEnum.user}) => {
                 signature.refreshSignature = process.env.REFRESH_USER_SIGNATUR_TOKEN
                 break;
             default:
-                    console.log("Invalid signature level");
-                    
+                break;           
         }
 
         return signature;

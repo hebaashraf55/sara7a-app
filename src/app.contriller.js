@@ -17,24 +17,28 @@ const bootstrap = async (app, express) => {
     await connectDB();
 
     const limiter = rateLimit({
-        windowMs: 60 * 1000, // 1 minutes
-        limit: 3, // 
-        // standardHeaders: 'draft-8', 
-        // legacyHeaders: false, 
+        windowMs: 60 * 1000, 
+        limit: 3, 
         message: {
             status : 429,
             message : 'Too many requests, please try again later'},
         handler: (req, res, next, options) => {
-            console.log("🚨 Rate limit triggered for:", req.ip);
+    
             res.status(options.statusCode).send(options.message);
         }
     })
-    // Apply the rate limiting middleware to all requests.
+
     app.use(limiter)
 
     attachRoutingWithLogger(app, '/api/auth', authRouter, 'auth.log')
     attachRoutingWithLogger(app, '/api/user', userRouter, 'user.log')
     attachRoutingWithLogger(app, '/api/message', messageRouter, 'message.log')
+
+    app.use('/', (req, res) => {
+        return res.status(200).json({
+            message : "Welcome to Sara7a-App"
+        })
+    })
 
 
 
@@ -48,7 +52,6 @@ const bootstrap = async (app, express) => {
         return next(new Error("not found handeler", {cause : 404}))
     }) 
 
-     // global error handler middleware
     app.use(globalErrorHandler)
 }
 

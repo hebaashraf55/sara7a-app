@@ -1,5 +1,4 @@
 import { UserModel , providers , roles } from '../../DB/Models/user.model.js';
-// import { asyncHandler } from '../../Utiles/asyncHandler.js';
 import { successResponse } from '../../Utiles/successRespons.utils.js';
 import  * as dbService from '../../DB/dbService.js';
 import { compare, hash } from '../../Utiles/hashing/hash.utils.js';
@@ -12,26 +11,25 @@ import { TokenModel } from '../../DB/Models/token.model.js';
 import { logOutEnums } from '../../Utiles/token/token.utils.js';
 
 
-// sign up
+
 export const signUp = async (req, res, next) => {
         const { firstName, lastName , email, password, confirmPassword ,phone,gender ,  role } = req.body
 
-        // check if user already exists 
+       
         const user = await dbService.findOne({ model : UserModel , filter : {email}})
         if (user) return next(new Error("User already exists"), { cause: 409 })
-            // hash password 
+           
         const hashedPassword = await hash({ plainText : password })
-        // encrypt phone number
+       
         const encryptedPhone = encrypt(phone)
-        // create otp 
+       
         const code = customAlphabet('0123456789', 6)()
-        // otp save in database hashed 
+        
         const hashOTP = await hash({ plainText : code })
 
-        // send email
+      
          emailEvent.emit('confirmemail', { to : email , otp : code , firstName})
 
-        // create new user
         const newUser = await dbService.create({
             model : UserModel,
             data : [{
@@ -51,7 +49,7 @@ export const signUp = async (req, res, next) => {
             data: newUser })
 }
 
-// logIn 
+
 export const logIn = async (req, res, next) => {
 
         const { email, password } = req.body
@@ -63,7 +61,7 @@ export const logIn = async (req, res, next) => {
         if(!user) {
             return next ( new Error("User not found"), { cause: 404 })
         }
-        // compare hashed password 
+        
         const isMatch = await compare({ plainText : password, hash : user.password })
         if ( !isMatch) {
             return next ( new Error("invalid credentials"), { cause: 401 })
@@ -79,7 +77,7 @@ export const logIn = async (req, res, next) => {
             message: "User logged in successfully", 
             data: { newCredentials } })
 }
-// logOut
+
 export const logout = async ( req, res, next ) => {
     const { flag } = req.body;
     let status = 200;
@@ -113,10 +111,10 @@ export const logout = async ( req, res, next ) => {
 
 }
 
-// confirm email
+
 export const confirmEmail = async (req, res, next) => {
     const { email , otp } = req.body
-    // find user
+   
     const user = await dbService.findOne({ 
         model : UserModel , 
         filter : { 
@@ -131,7 +129,7 @@ export const confirmEmail = async (req, res, next) => {
         return next ( new Error("Invalid OTP"), { cause: 401 })
     }
 
-    // update user
+    
     await dbService.updateOne({ 
         model : UserModel , 
         filter : { email },
@@ -161,7 +159,7 @@ async function verifyGoogleAcount ({idToken}) {
 
 }
 
-// socil login with Gemail
+
 export const logInWithGmail = async (req, res, next) => {
 
     const { idToken } = req.body;
@@ -174,7 +172,7 @@ export const logInWithGmail = async (req, res, next) => {
         model : UserModel , 
         filter : { email } 
     })
-    // if user find  login
+    
     if(user) {
         if(user.provider === providers.google){
             const newCredentials = await getNewLogInCredentials(user)
@@ -186,7 +184,7 @@ export const logInWithGmail = async (req, res, next) => {
             data: {newCredentials } })
         }   
    }
-   // if user not find  create new user
+  
    const newUser = await dbService.create({
     model : UserModel,
     data : [{
@@ -221,7 +219,7 @@ export const logInWithGmail = async (req, res, next) => {
             data: { accessToken , refreshToken } })
 }
 
-// refresh token
+
 export const refreshToken = async ( req, res, next ) => {
 
     const user = req.user;
@@ -234,7 +232,7 @@ export const refreshToken = async ( req, res, next ) => {
         data: { newCredentials} })
 
 }
-// forget password
+
 export const forgetPassword = async (req, res, next) => {
     const {email} = req.body;
 
@@ -252,7 +250,7 @@ export const forgetPassword = async (req, res, next) => {
     })
     if(!user) {
         return next(new Error("User not found or email not confirmed", { cause: 404 }))
-    } /// error when test in postman
+    } 
     emailEvent.emit('forgetPassword', { 
         to : email , 
         otp , 
@@ -265,7 +263,7 @@ export const forgetPassword = async (req, res, next) => {
         data: { otp } })
 
 }
-// reset password
+
 export const resetPassword = async (req, res, next) => {
 
     const { email , otp , password } = req.body;

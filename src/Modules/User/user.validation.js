@@ -51,7 +51,7 @@ export const porfileImageValidation = {
         originalname : generalFields.file.originalname.required(),
         encoding : generalFields.file.encoding.required(),
         mimetype : generalFields.file.mimetype.valid(...fileValidation.images).required(),
-        size : generalFields.file.size.max(5 * 1024 * 1024).required(), // 5MB
+        size : generalFields.file.size.max(5 * 1024 * 1024).required(), 
         path : generalFields.file.path.required(),
         filename : generalFields.file.filename.required(),
         finalPath : generalFields.file.finalPath.required(),

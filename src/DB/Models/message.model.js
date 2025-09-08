@@ -4,7 +4,6 @@ import mongoose, { Schema , model } from "mongoose";
 
 const messageSchema = new Schema({
 
-    // content
     content :{
         type : String,
         minLength : 2,
@@ -13,18 +12,18 @@ const messageSchema = new Schema({
             return this.attachments.length? false : true
         }
     },
-    // attachments
+
     attachments : [{
         secure_url : String,
         public_id : String
     }],
-    // recieverId
+
     recieverId : {
         type : Schema.Types.ObjectId,
         ref : 'User',
         required : true
     },
-    // senderId
+
     senderId : {
         type : Schema.Types.ObjectId,
         ref : 'User'

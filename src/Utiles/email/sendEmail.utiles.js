@@ -16,16 +16,15 @@ const transporter = nodemailer.createTransport({
   },
 });
   const info = await transporter.sendMail({
-    from: `"Heba Ashraf " <${process.env.EMAIL}>`, /////?
+    from: `"Heba Ashraf " <${process.env.EMAIL}>`,
     to,
     subject,
-    text, // plain‑text body
-    html, // HTML body
+    text, 
+    html, 
     cc,
     bcc,
     attachments
   });
-  console.log("Message sent:", info.messageId);
 }
 
 export const emailSubject = {
