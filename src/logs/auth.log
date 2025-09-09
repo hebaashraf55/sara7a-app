@@ -92,3 +92,5 @@
 ::1 - - [08/Sep/2025:18:52:04 +0000] "POST /api/auth/login HTTP/1.1" 200 637 "-" "PostmanRuntime/7.45.0"
 ::1 - - [08/Sep/2025:18:52:05 +0000] "POST /api/auth/login HTTP/1.1" 200 637 "-" "PostmanRuntime/7.45.0"
 ::1 - - [08/Sep/2025:18:52:09 +0000] "POST /api/auth/login HTTP/1.1" 200 637 "-" "PostmanRuntime/7.45.0"
+::1 - - [09/Sep/2025:15:19:36 +0000] "POST /api/auth/login HTTP/1.1" 500 309 "-" "PostmanRuntime/7.45.0"
+::1 - - [09/Sep/2025:15:25:39 +0000] "PATCH /api/auth/confirm-email HTTP/1.1" 200 578 "-" "PostmanRuntime/7.45.0"
