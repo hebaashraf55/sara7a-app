@@ -39,3 +39,60 @@ It is deployed on **AWS EC2**, showcasing practical knowledge of server deployme
 
 ## 🏗️ Project Architecture
 
+
+This modular architecture follows **Separation of Concerns**, making the codebase scalable and easy to maintain.
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/hebaashraf55/sara7a-app.git
+cd sara7a-app
+```
+2. Install dependencies
+npm install
+
+4. Create an .env file
+PORT=5000
+MONGO_URI=mongodb+srv://<your-cluster>
+JWT_SECRET=your_jwt_secret
+
+4. Run the server
+npm start
+
+Server runs on:
+👉 http://localhost:5000
+
+☁️ Deployment
+
+The app is deployed on AWS EC2, manually configured with Node.js, PM2, and Nginx for production-level performance and uptime.
+
+🧰 Future Enhancements
+
+Add WebSocket for real-time chat updates
+
+Add user blocking/reporting system
+
+Integrate notifications
+
+Add unit testing with Jest
+
+👩‍💻 Developer
+
+Heba Ashraf Ibrahim Noufal
+Backend Developer | Node.js | Express | MongoDB
+📧 hebaashraf81@gmail.com
+
+🔗 LinkedIn
+ | GitHub
+ 
+ ⭐ If you like this project, don’t forget to give it a star on GitHub!
+
+ 
+---
+
+Would you like me to make a **slightly shorter version** (optimized for recruiters who skim fast) or keep this **detailed full version** (good for technical reviewers)?
+
+ 
