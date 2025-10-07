@@ -77,16 +77,17 @@ Add user blocking/reporting system
 
 Integrate notifications
 
-Add unit testing with Jest
 
 👩‍💻 Developer
 
 Heba Ashraf Ibrahim Noufal
 Backend Developer | Node.js | Express | MongoDB
+
 📧 hebaashraf81@gmail.com
 
-🔗 LinkedIn
- | GitHub
+🔗 LinkedIn : (https://www.linkedin.com/in/heba-ashraf-nofal/)
+
+ | GitHub : (https://github.com/hebaashraf55)
  
  ⭐ If you like this project, don’t forget to give it a star on GitHub!
 
